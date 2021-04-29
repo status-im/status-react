@@ -14,6 +14,33 @@ First release of Status app was merged in [fdroid/fdroiddata#7179](https://gitla
 
 # Adding New Versions
 
+There are two ways - automated and manual - described below.
+
+## Automated
+
+#### Requirements:
+
+- GitLab account
+- Forked copy of the [`fdroiddata`](https://gitlab.com/fdroid/fdroiddata) repo
+- Link to the release published
+
+#### Steps
+
+1. First checkout the branch/commit you want to release
+    ```
+    git checkout release/1.12.x
+    ```
+2. Run the F-Droid PR script
+    ```
+    make fdroid-pr \
+        USERNAME=cammellos \
+        RELEASE_LINK=https://releases.status.im/StatusIm-Mobile-v1.12.0-cfb825-universal.apk
+    ```
+
+This will update the file, commit and push to the [`fdroiddata`](https://gitlab.com/fdroid/fdroiddata) repo. Then you can create a PR from the GitLab interface.
+
+## Manual
+
 You can find our configuration file at [`metadata/im.status.ethereum.yml`](https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/im.status.ethereum.yml)
 
 The file defines all the necessary metadata like `SourceCode`, `Website`, or `License`, but the most important key is `Builds`, which looks like this:
@@ -42,6 +69,7 @@ It contains a list of objects defining each release of the application. In order
 The `versionCode` should be the same as the one in build that was uploaded to Play Store.
 It can be found in the build logs or by using:
 ```
+ > make shell TARGET=android
  > apkanalyzer manifest version-code StatusIm-Mobile-v1.12.0.apk
 2021022512
 ```
