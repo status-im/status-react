@@ -62,6 +62,7 @@ class TestCreateAccount(SingleDeviceTestCase):
         keycard.yes_button.click()
         sign_in.maybe_later_button.wait_and_click(30)
         sign_in.lets_go_button.wait_and_click(30)
+        sign_in.no_thanks_metric_button.click()
 
         sign_in.just_fyi('Check that after migrating account with assets is restored')
         wallet_view = sign_in.wallet_button.click()
@@ -185,7 +186,7 @@ class TestCreateAccount(SingleDeviceTestCase):
             self.errors.append('Another seed phrase is shown after cancelling setup during Back up seed phrase')
         keycard_flow.backup_seed_phrase()
         keycard_flow.enter_default_pin()
-        for element in sign_in.maybe_later_button, sign_in.lets_go_button:
+        for element in sign_in.maybe_later_button, sign_in.lets_go_button, sign_in.no_thanks_metric_button:
             element.wait_for_visibility_of_element(30)
             element.click()
         sign_in.profile_button.wait_for_visibility_of_element(30)
@@ -244,7 +245,7 @@ class TestCreateAccount(SingleDeviceTestCase):
         keycard_flow.pair_code_input.set_value(pair_code)
         keycard_flow.pair_to_this_device_button.click()
         keycard_flow.enter_default_pin()
-        for element in sign_in.maybe_later_button, sign_in.lets_go_button:
+        for element in sign_in.maybe_later_button, sign_in.lets_go_button, sign_in.no_thanks_metric_button:
             element.wait_for_visibility_of_element(30)
             element.click()
         sign_in.profile_button.wait_for_visibility_of_element(30)
@@ -393,6 +394,7 @@ class TestCreateAccount(SingleDeviceTestCase):
         sign_in.next_button.click()
         sign_in.maybe_later_button.click_until_presence_of_element(sign_in.lets_go_button)
         sign_in.lets_go_button.click()
+        sign_in.no_thanks_metric_button.click()
 
         sign_in.just_fyi('Add to wallet seed phrase for restored multiaccount')
         wallet_view = sign_in.wallet_button.click()
@@ -445,6 +447,7 @@ class TestKeycardCreateMultiaccountMultipleDevice(MultipleDeviceTestCase):
         device_1.maybe_later_button.wait_for_visibility_of_element(30)
         device_1.maybe_later_button.click_until_presence_of_element(device_1.lets_go_button)
         device_1.lets_go_button.click_until_absense_of_element(device_1.lets_go_button)
+        device_1.no_thanks_metric_button.click()
         device_1.profile_button.wait_for_visibility_of_element(30)
 
         device_2.just_fyi("Restore same multiaccount from seed phrase on another device")

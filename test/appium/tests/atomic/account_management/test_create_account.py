@@ -54,6 +54,7 @@ class TestCreateAccount(SingleDeviceTestCase):
         sign_in.next_button.click()
         sign_in.maybe_later_button.click_until_presence_of_element(sign_in.lets_go_button)
         sign_in.lets_go_button.click()
+        sign_in.no_thanks_metric_button.click()
         if sign_in.get_public_key_and_username() == public_key:
             self.driver.fail('New account was not created')
 
@@ -104,6 +105,7 @@ class TestCreateAccount(SingleDeviceTestCase):
         sign_in.confirm_your_password_input.set_value(common_password)
         sign_in.next_button.click()
         [element.wait_and_click(10) for element in (sign_in.maybe_later_button, sign_in.lets_go_button)]
+        sign_in.no_thanks_metric_button.click()
         home = sign_in.get_home_view()
         texts = ["chat-and-transact", "follow-your-interests"]
         for text in texts:

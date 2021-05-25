@@ -22,7 +22,7 @@ class TestUpgradeApplication(SingleDeviceTestCase):
         old_version = profile.app_version_text.text
 
         profile.upgrade_app()
-        home = sign_in.sign_in()
+        home = sign_in.sign_in(upgraded=True)
 
         home.profile_button.click()
         profile.about_button.click()
@@ -196,7 +196,7 @@ class TestUpgradeMultipleApplication(MultipleDeviceTestCase):
     def test_commands_audio_backward_compatibility_upgrade(self):
         self.create_drivers(2)
         device_1, device_2 = SignInView(self.drivers[0]), SignInView(self.drivers[1])
-        device_2_home = device_2.create_user()
+        device_2_home = device_2.create_user(previous_release=True)
         device_2_public_key = device_2_home.get_public_key_and_username()
         device_2_home.home_button.click()
         user = upgrade_users['chats']
@@ -204,7 +204,7 @@ class TestUpgradeMultipleApplication(MultipleDeviceTestCase):
         device_1.just_fyi("Import db, upgrade")
         home = device_1.import_db(user=user, import_db_folder_name='chats')
         home.upgrade_app()
-        home = device_1.sign_in()
+        home = device_1.sign_in(upgraded=True)
 
         device_1.just_fyi("**Check messages in 1-1 chat**")
         command_username = 'Royal Defensive Solenodon'
@@ -216,16 +216,16 @@ class TestUpgradeMultipleApplication(MultipleDeviceTestCase):
         if chat.audio_message_in_chat_timer.text != messages['audio']['length']:
             self.errors.append('Timer is not shown for audiomessage')
         device_1.just_fyi('Check command messages')
-        commnad_messages = chat_data.chats[command_username]['commands']
-        for key in commnad_messages:
+        command_messages = chat_data.chats[command_username]['commands']
+        for key in command_messages:
             device_1.just_fyi('Checking %s command messages' % key)
-            amount = commnad_messages[key]['value']
+            amount = command_messages[key]['value']
             chat.element_by_text(amount).scroll_to_element()
             if 'incoming' in key:
                 message = chat.get_transaction_message_by_asset(amount, incoming=True)
             else:
                 message = chat.get_transaction_message_by_asset(amount, incoming=False)
-            if not message.transaction_status != commnad_messages[key]['status']:
+            if not message.transaction_status != command_messages[key]['status']:
                 self.errors.append('%s case transaction status is not equal expected after upgrade' % key)
             if key == 'outgoing_STT_sign':
                 if not message.sign_and_send.is_element_displayed():

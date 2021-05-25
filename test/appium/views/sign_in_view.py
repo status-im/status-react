@@ -69,6 +69,15 @@ class AccessKeyButton(Button):
         self.scroll_to_element().click()
         return self.navigate()
 
+class NoThanksButton(Button):
+    def __init__(self, driver):
+        super().__init__(driver, accessibility_id="opt-out-button")
+
+    def click(self):
+        size = self.driver.get_window_size()
+        self.driver.swipe(500, size["height"] * 0.8, 500, size["height"] * 0.05)
+        return super().click()
+
 
 class KeycardKeyStorageButton(Button):
     def __init__(self, driver):
@@ -119,6 +128,7 @@ class SignInView(BaseView):
         self.confirm_your_password_input = EditBox(self.driver,
                                                    xpath="(//android.widget.EditText[@content-desc='password-input'])[2]")
         self.enable_notifications_button = Button(self.driver, accessibility_id="enable-notifications")
+        self.no_thanks_metric_button = NoThanksButton(self.driver)
         self.maybe_later_button = Button(self.driver, accessibility_id="maybe-later")
         self.privacy_policy_link = PrivacyPolicyLink(self.driver)
         self.lets_go_button = Button(self.driver, accessibility_id="lets-go-button")
@@ -152,7 +162,8 @@ class SignInView(BaseView):
         self.continue_custom_seed_phrase_button = Button(self.driver, accessibility_id="continue-custom-seed-phrase")
         self.cancel_custom_seed_phrase_button = Button(self.driver, accessibility_id="cancel-custom-seed-phrase")
 
-    def create_user(self, password=common_password, keycard=False, enable_notifications=False, second_user=False):
+    def create_user(self, password=common_password, keycard=False, enable_notifications=False,
+                    second_user=False, previous_release=False):
         self.driver.info("**Creating new multiaccount (password:%s, keycard:%s)**" % (password, str(keycard)))
         if not second_user:
             self.get_started_button.click()
@@ -173,11 +184,15 @@ class SignInView(BaseView):
         else:
             self.maybe_later_button.click_until_presence_of_element(self.lets_go_button)
         self.lets_go_button.click_until_absense_of_element(self.lets_go_button)
+        # TODO: backward compatibility with 1.13
+        if not previous_release:
+            self.no_thanks_metric_button.click()
         self.profile_button.wait_for_visibility_of_element(30)
         self.driver.info("**New multiaccount is created successfully!**")
         return self.get_home_view()
 
-    def recover_access(self, passphrase: str, password: str = common_password, keycard=False, enable_notifications=False):
+    def recover_access(self, passphrase: str, password: str = common_password,
+                       keycard=False, enable_notifications=False, previous_release=False):
         self.driver.info("**Recover access(password:%s, keycard:%s)**" % (password, str(keycard)))
         self.get_started_button.click_until_presence_of_element(self.access_key_button)
         self.access_key_button.click()
@@ -200,11 +215,14 @@ class SignInView(BaseView):
         else:
             self.maybe_later_button.click_until_presence_of_element(self.lets_go_button)
         self.lets_go_button.click()
+        # TODO: backward compatibility with 1.13
+        if not previous_release:
+            self.no_thanks_metric_button.click()
         self.profile_button.wait_for_visibility_of_element(30)
         self.driver.info("**Multiaccount is recovered successfully!**")
         return self.get_home_view()
 
-    def sign_in(self, password=common_password, keycard=False, position=1):
+    def sign_in(self, password=common_password, keycard=False, position=1, upgraded=False):
         self.driver.info("**Sign in (password:%s, keycard:%s)**" % (password, str(keycard)))
         self.multi_account_on_login_button.wait_for_visibility_of_element(30)
         self.get_multiaccount_by_position(position).click()
@@ -218,6 +236,10 @@ class SignInView(BaseView):
         else:
             self.password_input.set_value(password)
             self.sign_in_button.click()
+        # TODO: backward compatibility with 1.13
+        if upgraded:
+            self.click_system_back_button()
+            self.no_thanks_metric_button.click()
         self.driver.info("**Signed in successfully!**")
         return self.get_home_view()
 
@@ -238,7 +260,7 @@ class SignInView(BaseView):
     def import_db(self, user, import_db_folder_name):
         self.just_fyi('**Importing database**')
         import_file_name = 'export.db'
-        home = self.recover_access(user['passphrase'])
+        home = self.recover_access(user['passphrase'], previous_release=True)
         profile = home.profile_button.click()
         full_path_to_file = os.path.join(appium_root_project_path, 'views/upgrade_dbs/%s/%s' %
                                          (import_db_folder_name, import_file_name))

@@ -652,7 +652,7 @@ class ChatView(BaseView):
         element.wait_for_invisibility_of_element()
 
     def scroll_to_start_of_history(self, depth=20):
-        self.driver.info('*Scrolling th the start of chat history*')
+        self.driver.info('*Scrolling to the start of chat history*')
         for _ in range(depth):
             try:
                 return self.history_start_icon.find_element()

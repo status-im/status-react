@@ -31,6 +31,7 @@ class TestProfileSingleDevice(SingleDeviceTestCase):
         sign_in.next_button.click()
         sign_in.maybe_later_button.click_until_presence_of_element(sign_in.lets_go_button)
         sign_in.lets_go_button.click()
+        sign_in.no_thanks_metric_button.click()
 
         sign_in.just_fyi('Delete 2nd multiaccount')
         public_key, username = sign_in.get_public_key_and_username(return_username=True)
