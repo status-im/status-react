@@ -21,6 +21,16 @@
        "/c/"
        community-id))
 
+(defn sanitize-name
+  "sanitize-name replace uppercase with lower case and
+  spaces with dashes"
+  [n]
+  (->
+   n
+   str
+   string/lower-case
+   (string/replace " " "-")))
+
 (def featured
   [{:name "Status"
     :id constants/status-community-id}])

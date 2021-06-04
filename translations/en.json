@@ -1172,6 +1172,7 @@
     "token-auto-validate-symbol-error": "Wrong symbol for token {{symbol}} at address {{address}} - set to {{expected}} but detected as {{actual}}",
     "token-details": "Token details",
     "topic-name-error": "Use only lowercase letters (a to z), numbers & dashes (-). Do not use chat keys",
+    "community-channel-name-error": "White spaces and capital letters not allowed. Max 30 characters",
     "transaction": "Transaction",
     "transaction-data": "Transaction data",
     "transaction-declined": "Transaction declined",
