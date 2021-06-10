@@ -1980,6 +1980,12 @@
    (contact.db/query-chat-contacts chat contacts query-fn)))
 
 (re-frame/reg-sub
+ :multiaccount/profile-pictures-show-to
+ :<- [:multiaccount]
+ (fn [multiaccount]
+   (get multiaccount :profile-pictures-show-to)))
+
+(re-frame/reg-sub
  ::profile-pictures-visibility
  :<- [:multiaccount]
  (fn [multiaccount]

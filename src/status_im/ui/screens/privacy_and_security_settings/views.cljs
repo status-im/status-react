@@ -8,11 +8,16 @@
             [status-im.utils.config :as config]
             [status-im.multiaccounts.biometric.core :as biometric]
             [status-im.ui.components.topbar :as topbar]
-            [status-im.utils.platform :as platform])
+            [status-im.utils.platform :as platform]
+            [status-im.constants :as constants])
   (:require-macros [status-im.utils.views :as views]))
 
 (defn separator []
   [quo/separator {:style {:margin-vertical  8}}])
+
+(def titles {constants/profile-pictures-show-to-contacts-only (i18n/label :t/recent-recipients)
+             constants/profile-pictures-show-to-everyone      (i18n/label :t/everyone)
+             constants/profile-pictures-show-to-none          (i18n/label :t/none)})
 
 (views/defview privacy-and-security []
   (views/letsubs [{:keys [mnemonic
@@ -20,7 +25,8 @@
                           messages-from-contacts-only
                           webview-allow-permission-requests?]} [:multiaccount]
                   supported-biometric-auth [:supported-biometric-auth]
-                  auth-method              [:auth-method]]
+                  auth-method              [:auth-method]
+                  profile-pictures-show-to [:multiaccount/profile-pictures-show-to]]
     [react/view {:flex 1 :background-color colors/white}
      [topbar/topbar {:title (i18n/label :t/privacy-and-security)}]
      [react/scroll-view {:padding-vertical 8}
@@ -96,6 +102,14 @@
                         :on-press           #(re-frame/dispatch
                                               [:multiaccounts.ui/webview-permission-requests-switched
                                                ((complement boolean) webview-allow-permission-requests?)])}])
+      [quo/list-item
+       {:size                :small
+        :title               (i18n/label :t/show-profile-pictures-to)
+        :accessibility-label :show-profile-pictures-to
+        :accessory           :text
+        :accessory-text      (get titles profile-pictures-show-to)
+        :on-press            #(re-frame/dispatch [:navigate-to :privacy-and-security-profile-pic-show-to])
+        :chevron             true}]
       [separator]
       [quo/list-item
        {:size                :small
@@ -104,3 +118,19 @@
         :on-press            #(re-frame/dispatch [:navigate-to :delete-profile])
         :accessibility-label :dapps-permissions-button
         :chevron             true}]]]))
+
+(defn radio-item [id value]
+  [quo/list-item
+   {:active    (= value id)
+    :accessory :radio
+    :title     (get titles id)
+    :on-press  #(re-frame/dispatch [:multiaccounts.ui/profile-picture-show-to-switched id])}])
+
+(views/defview profile-pic-show-to []
+  (views/letsubs [profile-pictures-show-to [:multiaccount/profile-pictures-show-to]]
+    [react/view {:flex 1}
+     [topbar/topbar {:title (i18n/label :t/show-profile-pictures-to)}]
+     [react/view {:margin-top 8}
+      [radio-item constants/profile-pictures-show-to-everyone profile-pictures-show-to]
+      [radio-item constants/profile-pictures-show-to-contacts-only profile-pictures-show-to]
+      [radio-item constants/profile-pictures-show-to-none profile-pictures-show-to]]]))

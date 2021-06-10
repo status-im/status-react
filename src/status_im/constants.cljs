@@ -59,6 +59,10 @@
 (def ^:const command-state-transaction-pending 6)
 (def ^:const command-state-transaction-sent 7)
 
+(def ^:const profile-pictures-show-to-contacts-only 1)
+(def ^:const profile-pictures-show-to-everyone 2)
+(def ^:const profile-pictures-show-to-none 3)
+
 (def ^:const profile-pictures-visibility-contacts-only 1)
 (def ^:const profile-pictures-visibility-everyone 2)
 (def ^:const profile-pictures-visibility-none 3)

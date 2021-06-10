@@ -78,6 +78,7 @@
    :wallet/visible-tokens {:mainnet #{:SNT}}
    :currency :usd
    :appearance 0
+   :profile-pictures-show-to 1
    :profile-pictures-visibility 1
    :log-level log-level
    :webview-allow-permission-requests? false

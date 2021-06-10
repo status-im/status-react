@@ -170,6 +170,11 @@
             {::switch-theme theme}
             (multiaccounts.update/multiaccount-update :appearance theme {})))
 
+(fx/defn switch-profile-picture-show-to
+  {:events [:multiaccounts.ui/profile-picture-show-to-switched]}
+  [cofx id]
+  (multiaccounts.update/multiaccount-update cofx :profile-pictures-show-to id {}))
+
 (fx/defn switch-appearance-profile
   {:events [:multiaccounts.ui/appearance-profile-switched]}
   [cofx id]

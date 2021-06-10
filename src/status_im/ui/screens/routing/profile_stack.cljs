@@ -91,6 +91,8 @@
      :component privacy-and-security/privacy-and-security}
     {:name      :messages-from-contacts-only
      :component messages-from-contacts-only/messages-from-contacts-only}
+    {:name      :privacy-and-security-profile-pic-show-to
+     :component privacy-and-security/profile-pic-show-to}
     {:name      :appearance
      :component appearance/appearance}
     {:name      :appearance-profile-pic
