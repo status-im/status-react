@@ -154,3 +154,6 @@
       (crypto->fiat (get-in prices [from to :price] ^js (bignumber 0)))
       (with-precision 2)
       str))
+
+(defn equals [bn1 bn2]
+  (.equals bn1 bn2))

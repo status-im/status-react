@@ -20,7 +20,8 @@
     :transport/confirm-messages-processed
     :group-chats/extract-membership-signature
     :utils/dispatch-later
-    ::json-rpc/call})
+    ::json-rpc/call
+    :local/local-pushes-ios})
 
 (defn- safe-merge [fx new-fx]
   (if (:merging-fx-with-common-keys fx)
@@ -51,11 +52,14 @@
     (swap! handlers/handler-nesting-level inc))
   (let [[first-arg & rest-args] args
         initial-fxs? (map? first-arg)
-        fx-fns (if initial-fxs? rest-args args)]
-    (clojure.core/reduce (fn [fxs fx-fn]
-                           (let [updated-cofx (update-db cofx fxs)]
-                             (if fx-fn
-                               (safe-merge fxs (fx-fn updated-cofx))
-                               fxs)))
-                         (if initial-fxs? first-arg {:db db})
-                         fx-fns)))
+        fx-fns (if initial-fxs? rest-args args)
+        res
+        (clojure.core/reduce (fn [fxs fx-fn]
+                               (let [updated-cofx (update-db cofx fxs)]
+                                 (if fx-fn
+                                   (safe-merge fxs (fx-fn updated-cofx))
+                                   fxs)))
+                             (if initial-fxs? first-arg {:db db})
+                             fx-fns)]
+    (swap! handlers/handler-nesting-level dec)
+    res))

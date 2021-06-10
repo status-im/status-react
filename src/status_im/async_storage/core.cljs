@@ -9,23 +9,38 @@
 
 (def key->string str)
 
-(defn- set-item! [key value]
-  (-> ^js async-storage
-      (.setItem (key->string key)
-                (clj->transit value))
-      (.catch (fn [error]
-                (log/error "[async-storage]" error)))))
+(defn- set-item! [promise key value]
+  (let [f
+        (fn []
+          (-> ^js async-storage
+              (.setItem (key->string key)
+                        (clj->transit value))
+              (.catch (fn [error]
+                        (log/error "[async-storage]" error)))))]
+    (if promise
+      (.then promise f)
+      (f))))
 
 (defn- set-item-factory
   []
   (let [tmp-storage (atom {})
-        debounced   (f/debounce (fn []
-                                  (doseq [[k v] @tmp-storage]
-                                    (swap! tmp-storage dissoc k)
-                                    (set-item! k v))) debounce-ms)]
-    (fn [items]
-      (swap! tmp-storage merge items)
-      (debounced))))
+        debounced   (f/debounce (fn [callback]
+                                  (.then
+                                   (reduce
+                                    (fn [p [k v]]
+                                      (swap! tmp-storage dissoc k)
+                                      (set-item! p k v))
+                                    nil
+                                    @tmp-storage)
+                                   (fn []
+                                     (when callback
+                                       (callback)))))
+                                debounce-ms)]
+    (fn set-item
+      ([items] (set-item items nil))
+      ([items callback]
+       (swap! tmp-storage merge items)
+       (debounced callback)))))
 
 (defn get-items [keys cb]
   (-> ^js async-storage
@@ -51,6 +66,12 @@
                 (log/error "[async-storage]" error)))))
 
 (re-frame/reg-fx ::set! (set-item-factory))
+
+(re-frame/reg-fx
+ ::set-with-callback!
+ (let [f (set-item-factory)]
+   (fn [{:keys [data callback]}]
+     (f data callback))))
 
 (re-frame/reg-fx
  ::get

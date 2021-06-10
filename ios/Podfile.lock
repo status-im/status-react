@@ -290,6 +290,8 @@ PODS:
     - React
   - ReactNativeDarkMode (0.2.2):
     - React
+  - RNBackgroundFetch (4.0.2):
+    - React-Core
   - RNCAsyncStorage (1.11.0):
     - React
   - RNCClipboard (1.2.2):
@@ -387,6 +389,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "ReactNativeAudioToolkit (from `../node_modules/@react-native-community/audio-toolkit`)"
   - ReactNativeDarkMode (from `../node_modules/react-native-dark-mode`)
+  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
@@ -507,6 +510,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/audio-toolkit"
   ReactNativeDarkMode:
     :path: "../node_modules/react-native-dark-mode"
+  RNBackgroundFetch:
+    :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
   RNCClipboard:
@@ -602,6 +607,7 @@ SPEC CHECKSUMS:
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   ReactNativeAudioToolkit: de9610f323e855ac6574be8c99621f3d57c5df06
   ReactNativeDarkMode: 0178ffca3b10f6a7c9f49d6f9810232b328fa949
+  RNBackgroundFetch: 635d82e1e185b235c1fe787f29517507f87450e0
   RNCAsyncStorage: d059c3ee71738c39834a627476322a5a8cd5bf36
   RNCClipboard: 8148e21ac347c51fd6cd4b683389094c216bb543
   RNCMaskedView: 71fc32d971f03b7f03d6ab6b86b730c4ee64f5b6

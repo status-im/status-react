@@ -151,3 +151,8 @@
     "giphy.com"
     "gph.is"
     "media.giphy.com"})
+
+(defn get-rpc-url [db]
+  (get-in db [:networks/networks
+              (get db :networks/current-network)
+              :config :UpstreamConfig :URL]))

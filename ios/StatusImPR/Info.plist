@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.transistorsoft.fetch</string>
+	</array>
 	<key>CFBundleBuildUrl</key>
 	<string>????</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -55,6 +59,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NFCReaderUsageDescription</key>
+	<string>Enable Keycard</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -81,10 +87,10 @@
 	<string>Location access is required for some DApps to function properly.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location access is required for some DApps to function properly.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photos access is required to give you the ability to send images.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Need microphone access for sending audio messages.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photos access is required to give you the ability to send images.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Bold.otf</string>
@@ -109,6 +115,8 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
+		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -139,7 +147,5 @@
 		<string>A00000080400010301</string>
 		<string>A000000151000000</string>
 	</array>
-	<key>NFCReaderUsageDescription</key>
-	<string>Enable Keycard</string>
 </dict>
 </plist>

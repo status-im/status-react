@@ -36,6 +36,7 @@
     "react": "16.13.1",
     "react-dom": "^16.4.2",
     "react-native": "0.63.4",
+    "react-native-background-fetch": "^4.0.2",
     "react-native-background-timer": "^2.1.1",
     "react-native-camera-kit": "^8.0.4",
     "react-native-config": "git+https://github.com/status-im/react-native-config.git#v1.4.2-status",

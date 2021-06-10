@@ -23,6 +23,8 @@
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
+
  /*
 #if DEBUG
 #import <FlipperKit/FlipperClient.h>
@@ -77,6 +79,8 @@ static void InitializeFlipper(UIApplication *application) {
       dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"BLANK_PREVIEW"];
   [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
+  [[TSBackgroundFetch sharedInstance] didFinishLaunching];
+  
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                       moduleName:@"StatusIm"
@@ -96,7 +100,7 @@ static void InitializeFlipper(UIApplication *application) {
 
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-
+  
   return YES;
 }
 

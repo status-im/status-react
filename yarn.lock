@@ -6601,6 +6601,11 @@ react-is@^16.12.0, react-is@^16.13.0, react-is@^16.7.0, react-is@^16.8.1, react-
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-background-fetch@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-background-fetch/-/react-native-background-fetch-4.0.2.tgz#97842722b67c584fd860f30eb1fc70e481b207c0"
+  integrity sha512-R5T4fxz3k7Lldv3urUDuhOVwueMNCGQ03pCu44oe/zcOmKX3iGzvwup9W2J2C763MKnuSztF0Y2F4fMYPIR0fw==
+
 react-native-background-timer@^2.1.1:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/react-native-background-timer/-/react-native-background-timer-2.2.0.tgz#ff82d30899209b924983cc00e6ce174b8de5054a"

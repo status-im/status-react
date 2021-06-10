@@ -9,7 +9,8 @@
             [status-im.multiaccounts.core :as multiaccounts]
             [status-im.utils.keychain.core :as keychain]
             [status-im.notifications.core :as notifications]
-            [status-im.wallet.core :as wallet]))
+            [status-im.wallet.core :as wallet]
+            [status-im.wallet.background-check :as background-check]))
 
 (fx/defn logout-method
   [{:keys [db] :as cofx} {:keys [auth-method logout?]}]
@@ -27,6 +28,7 @@
               (keychain/save-auth-method key-uid auth-method)
               (transport/stop-whisper)
               (wallet/clear-timeouts)
+              (background-check/stop-background-task)
               (init/initialize-app-db))))
 
 (re-frame/reg-fx

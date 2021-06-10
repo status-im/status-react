@@ -16,6 +16,7 @@
             [status-im.utils.config :as config]
             [status-im.reloader :as reloader]
             [status-im.i18n.i18n :as i18n]
+            [status-im.wallet.background-check :as background-check]
             ["react-native" :as rn]
             ["react-native-languages" :default react-native-languages]
             ["react-native-shake" :as react-native-shake]))
@@ -57,6 +58,7 @@
   (reagent/create-class
    {:component-did-mount
     (fn [_]
+      (background-check/start-background-fetch)
       (.addEventListener ^js react/app-state "change" app-state-change-handler)
       (.addEventListener react-native-languages "change" on-languages-change)
       (.addEventListener react-native-shake "ShakeEvent" on-shake)

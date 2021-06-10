@@ -108,13 +108,19 @@
     (case bodyType
       "message"     (when (show-message-pn? cofx notification) notification)
       "transaction" (create-transfer-notification notification)
-      nil)
+      notification)
     :body-type bodyType)))
 
 (re-frame/reg-fx
  ::local-push-ios
  (fn [evt]
    (-> evt create-notification local-push-ios)))
+
+(re-frame/reg-fx
+ :local/local-pushes-ios
+ (fn [evts]
+   (doseq [evt evts]
+     (-> evt create-notification local-push-ios))))
 
 (fx/defn local-notification-android
   {:events [::local-notification-android]}

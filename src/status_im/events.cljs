@@ -19,7 +19,6 @@
             [status-im.anon-metrics.core :as anon-metrics]
             clojure.set
             status-im.currency.core
-            status-im.navigation
             status-im.utils.universal-links.core
             status-im.wallet.custom-tokens.core
             status-im.waku.core
@@ -56,7 +55,8 @@
             status-im.browser.permissions
             status-im.chat.models.transport
             status-im.notifications-center.core
-            [status-im.navigation :as navigation]))
+            [status-im.navigation :as navigation]
+            [status-im.wallet.background-check :as background-check]))
 
 (re-frame/reg-fx
  :dismiss-keyboard
@@ -166,7 +166,9 @@
               #(when app-coming-from-background?
                  (on-return-from-background %))
               #(when app-going-in-background?
-                 (on-going-in-background %)))))
+                 (on-going-in-background %))
+              (when app-going-in-background?
+                (background-check/configure)))))
 
 (fx/defn request-permissions
   {:events [:request-permissions]}
