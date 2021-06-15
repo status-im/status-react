@@ -19,5 +19,5 @@
   # Android SDK requires an accepted license
   android_sdk.accept_license = true;
   # Android Env still needs old OpenSSL
-  permittedInsecurePackages = [ "openssl-1.0.2u" ];
+  permittedInsecurePackages = [ "openssl-1.0.2u" "go-1.14.15" ];
 }

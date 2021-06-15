@@ -5,9 +5,9 @@ mkShell {
   shellHook = ''
     export JAVA_HOME="${openjdk}"
 
-    export ANDROID_HOME="${androidPkgs}"
-    export ANDROID_SDK_ROOT="${androidPkgs}"
-    export ANDROID_NDK_ROOT="${androidPkgs}/ndk-bundle"
+    export ANDROID_HOME="${androidPkgs.sdk}"
+    export ANDROID_NDK_ROOT="${androidPkgs.ndk}"
+    export ANDROID_SDK_ROOT="$ANDROID_HOME"
 
     export PATH="$ANDROID_HOME/bin:$PATH"
     export PATH="$ANDROID_NDK_ROOT:$PATH"

@@ -3,15 +3,15 @@
 #
 # This derivation simply symlinks some stuff to get
 # shorter paths as libexec/android-sdk is quite the mouthful.
+# With this you can just do `androidPkgs.sdk` and `androidPkgs.ndk`.
 #
 stdenv.mkDerivation {
   name = "${compose.androidsdk.name}-mod";
   phases = [ "symlinkPhase" ];
+  outputs = [ "out" "sdk" "ndk" ];
   symlinkPhase = ''
-    mkdir -p $out
-    ln -s "${compose.androidsdk}/bin" $out/bin
-    for d in ${compose.androidsdk}/libexec/android-sdk/*; do
-      ln -s $d $out/$(basename $d)
-    done
+    ln -s ${compose.androidsdk} $out
+    ln -s ${compose.androidsdk}/libexec/android-sdk $sdk
+    ln -s ${compose.androidsdk}/libexec/android-sdk/ndk-bundle $ndk
   '';
 }

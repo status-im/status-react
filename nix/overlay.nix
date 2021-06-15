@@ -8,7 +8,7 @@
 self: super:
 
 let inherit (super) stdenv stdenvNoCC callPackage;
-in {
+in rec {
   # Fix for MacOS
   mkShell = super.mkShell.override { stdenv = stdenvNoCC; };
 
@@ -48,7 +48,7 @@ in {
 
   # Custom packages
   aapt2 = callPackage ./pkgs/aapt2 { };
-  gomobile = callPackage ./pkgs/gomobile { };
+  gomobile = super.gomobile.override { androidPkgs = androidEnvCustom.compose; };
   patchMavenSources = callPackage ./pkgs/patch-maven-srcs { };
   goMavenResolver = callPackage ./pkgs/go-maven-resolver { };
 }

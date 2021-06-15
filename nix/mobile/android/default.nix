@@ -34,8 +34,8 @@ in {
     ];
 
     shellHook = ''
-      export ANDROID_SDK_ROOT="${androidPkgs}"
-      export ANDROID_NDK_ROOT="${androidPkgs}/ndk-bundle"
+      export ANDROID_SDK_ROOT="${androidPkgs.sdk}"
+      export ANDROID_NDK_ROOT="${androidPkgs.ndk}"
 
       export STATUS_NIX_MAVEN_REPO="${deps.gradle}"
 
