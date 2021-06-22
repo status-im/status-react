@@ -157,3 +157,4 @@
 (def ^:const activity-center-notification-type-one-to-one-chat 1)
 (def ^:const activity-center-notification-type-private-group-chat 2)
 (def ^:const activity-center-notification-type-mention 3)
+(def ^:const activity-center-notification-type-reply 4)

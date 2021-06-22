@@ -1,13 +1,17 @@
 (ns status-im.ui.screens.notifications-center.styles
   (:require [status-im.ui.components.colors :as colors]
-            [quo.design-system.colors :as quo-colors]))
+            [quo.design-system.spacing :as spacing]))
 
 (def notification-message-text
   {:flex        1
    :align-self  :stretch
    :line-height 22
-   :font-size   15
-   :color       (:text-01 @quo-colors/theme)})
+   :font-size   15})
+
+(def notification-reply-text
+  {:line-height 20
+   :font-size   13
+   :color       colors/text-gray})
 
 (def mention-text
   {:color colors/blue})
@@ -24,18 +28,32 @@
    :right          16})
 
 (def group-info-container
-  {:height          22
-   :align-self      :baseline
-   :align-items     :center
-   :justify-content :center
-   :border-radius   11
-   :border-color    colors/gray-transparent-40
-   :border-width    1
-   :margin-top      6
-   :margin-bottom   10
-   :padding-left    7
-   :padding-right   5
-   :flex-direction  :row})
+  (merge
+   {:height          22
+    :align-self      :baseline
+    :align-items     :center
+    :justify-content :center
+    :border-radius   11
+    :border-color    colors/gray-transparent-40
+    :border-width    1
+    :margin-top      6
+    :margin-bottom   10
+    :flex-direction  :row}
+   (:x-tiny spacing/padding-horizontal)))
+
+(def reply-message-container
+  (merge
+   {:height          22
+    :align-self      :baseline
+    :align-items :center
+    :border-radius   11
+    :border-color    colors/gray-transparent-40
+    :border-width    1
+    :margin-top      6
+    :margin-bottom   10
+    :margin-right    15
+    :flex-direction  :row}
+   (:x-tiny spacing/padding-horizontal)))
 
 (defn notification-container [read]
   {:min-height       64
@@ -60,6 +78,9 @@
 
 (def group-icon
   {:margin-right 4})
+
+(def reply-icon
+  {:margin-right 1})
 
 (def community-info-container
   {:flex-direction :row

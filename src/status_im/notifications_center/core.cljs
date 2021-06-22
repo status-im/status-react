@@ -55,11 +55,13 @@
   [{:keys [db]} chat-id]
   (let [notifications (get-in db [:activity.center/notifications :notifications])
         notifications-from-chat (filter #(= chat-id (:chat-id %)) notifications)
+        notifications-from-chat-not-read (filter #(and (= chat-id (:chat-id %))
+                                                       (not (:read %))) notifications)
         ids (map :id notifications-from-chat)]
     {:db (-> db
              (update-in [:activity.center/notifications :notifications]
-                        (fn [items] (remove #(get ids (:id %)) items)))
-             (update :activity.center/notifications-count - (count ids)))
+                        (fn [items] (filter #(not (= chat-id (:chat-id %))) items)))
+             (update :activity.center/notifications-count - (min (db :activity.center/notifications-count) (count notifications-from-chat-not-read))))
      ::json-rpc/call [{:method     (json-rpc/call-ext-method "acceptActivityCenterNotifications")
                        :params     [ids]
                        :js-response true
