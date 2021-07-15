@@ -1756,7 +1756,8 @@
    (let [supported-notifications (filter (fn [{:keys [type]}]
                                            (or (= constants/activity-center-notification-type-mention type)
                                                (= constants/activity-center-notification-type-one-to-one-chat type)
-                                               (= constants/activity-center-notification-type-private-group-chat type))) notifications)]
+                                               (= constants/activity-center-notification-type-private-group-chat type)
+                                               (= constants/activity-center-notification-type-reply type))) notifications)]
      (group-notifications-by-date (map #(assoc % :timestamp (or (:timestamp %) (:timestamp (or (:message %) (:last-message %))))) supported-notifications)))))
 
 ;;WALLET TRANSACTIONS ==================================================================================================
