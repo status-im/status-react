@@ -21,7 +21,8 @@
             [status-im.wallet.prices :as prices]
             [status-im.wallet.core :as wallet]
             [taoensso.timbre :as log]
-            [clojure.set :as clojure.set]))
+            [clojure.set :as clojure.set]
+            [status-im.signing.eip1559 :as eip1559]))
 
 (re-frame/reg-fx
  :signing/send-transaction-fx
@@ -92,7 +93,7 @@
   {:events [:signing.ui/sign-is-pressed]}
   [{{:signing/keys [sign tx] :as db} :db :as cofx}]
   (let [{:keys [in-progress? password]} sign
-        {:keys [tx-obj gas gasPrice message]} tx
+        {:keys [tx-obj gas gasPrice maxPriorityFeePerGas maxFeePerGas message]} tx
         hashed-password (ethereum/sha3 (security/safe-unmask-data password))]
     (if message
       (sign-message cofx)
@@ -100,7 +101,11 @@
                                   (when gas
                                     {:gas (str "0x" (abi-spec/number-to-hex gas))})
                                   (when gasPrice
-                                    {:gasPrice (str "0x" (abi-spec/number-to-hex gasPrice))}))]
+                                    {:gasPrice (str "0x" (abi-spec/number-to-hex gasPrice))})
+                                  (when maxPriorityFeePerGas
+                                    {:maxPriorityFeePerGas (str "0x" (abi-spec/number-to-hex maxPriorityFeePerGas))})
+                                  (when maxFeePerGas
+                                    {:maxFeePerGas (str "0x" (abi-spec/number-to-hex maxFeePerGas))}))]
         (when-not in-progress?
           {:db                          (update db :signing/sign assoc :error nil :in-progress? true)
            :signing/send-transaction-fx {:tx-obj   tx-obj-to-send
@@ -192,17 +197,21 @@
                {:to      to
                 :contact {:address (ethereum/normalized-hex to)}})))))
 
-(defn prepare-tx [db {{:keys [data gas gasPrice] :as tx-obj} :tx-obj :as tx}]
+(defn prepare-tx [db {{:keys [data gas gasPrice maxFeePerGas maxPriorityFeePerGas] :as tx-obj} :tx-obj :as tx}]
   (merge
    tx
    (parse-tx-obj db tx-obj)
-   {:data     data
-    :gas      (when gas (money/bignumber gas))
-    :gasPrice (when gasPrice (money/bignumber gasPrice))}))
+   {:data                 data
+    :gas                  (when gas (money/bignumber gas))
+    :gasPrice             (when gasPrice (money/bignumber gasPrice))
+    :maxFeePerGas         (when maxFeePerGas
+                            (money/bignumber maxFeePerGas))
+    :maxPriorityFeePerGas (when maxPriorityFeePerGas
+                            (money/bignumber maxPriorityFeePerGas))}))
 
 (fx/defn show-sign [{:keys [db] :as cofx}]
   (let [{:signing/keys [queue]} db
-        {{:keys [gas gasPrice] :as tx-obj} :tx-obj {:keys [data typed? pinless?] :as message} :message :as tx} (last queue)
+        {{:keys [gas gasPrice maxFeePerGas] :as tx-obj} :tx-obj {:keys [data typed? pinless?] :as message} :message :as tx} (last queue)
         keycard-multiaccount? (boolean (get-in db [:multiaccount :keycard-pairing]))
         wallet-set-up-passed? (get-in db [:multiaccount :wallet-set-up-passed?])]
     (if message
@@ -240,10 +249,12 @@
            :signing/update-estimated-gas {:obj           (dissoc tx-obj :gasPrice)
                                           :success-event :signing/update-estimated-gas-success
                                           :error-event :signing/update-estimated-gas-error}})
-       #(when-not gasPrice
+       #(when-not (or maxFeePerGas gasPrice)
           {:db (assoc-in (:db %) [:signing/edit-fee :gas-price-loading?] true)
            :signing/update-gas-price {:success-event :signing/update-gas-price-success
-                                      :error-event :signing/update-gas-price-error}})))))
+                                      :error-event :signing/update-gas-price-error
+                                      :network-id  (get-in (ethereum/current-network db)
+                                                           [:config :NetworkId])}})))))
 
 (fx/defn check-queue [{:keys [db] :as cofx}]
   (let [{:signing/keys [tx queue]} db]
@@ -485,7 +496,7 @@
 
 (fx/defn sign-transaction-button-clicked
   {:events [:wallet.ui/sign-transaction-button-clicked]}
-  [{:keys [db] :as cofx} {:keys [to amount from token gas gasPrice]}]
+  [{:keys [db] :as cofx} {:keys [to amount from token gas gasPrice maxFeePerGas maxPriorityFeePerGas]}]
   (let [{:keys [symbol address]} token
         amount-hex   (str "0x" (abi-spec/number-to-hex amount))
         to-norm      (ethereum/normalized-hex (if (string? to) to (:address to)))
@@ -493,10 +504,16 @@
     (fx/merge cofx
               {:db (dissoc db :wallet/prepare-transaction)}
               (sign
-               {:tx-obj (merge {:from     from-address
-                                ;;gas and gasPrice from qr (eip681)
-                                :gas      gas
-                                :gasPrice gasPrice}
+               {:tx-obj (merge (if (eip1559/sync-enabled?)
+                                 {:from                 from-address
+                                  :gas                  gas
+                                  ;; per eip1559
+                                  :maxFeePerGas         maxFeePerGas
+                                  :maxPriorityFeePerGas maxPriorityFeePerGas}
+                                 {:from     from-address
+                                  ;;gas and gasPrice from qr (eip681)
+                                  :gas      gas
+                                  :gasPrice gasPrice})
                                (if (= symbol :ETH)
                                  {:to    to-norm
                                   :value amount-hex}

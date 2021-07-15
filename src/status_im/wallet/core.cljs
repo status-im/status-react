@@ -27,6 +27,7 @@
             status-im.wallet.recipient.core
             [status-im.async-storage.core :as async-storage]
             [status-im.popover.core :as popover.core]
+            [status-im.signing.eip1559 :as eip1559]
             [clojure.set :as clojure.set]))
 
 (defn get-balance
@@ -380,7 +381,16 @@
 (fx/defn wallet-send-gas-price-success
   {:events [:wallet.send/update-gas-price-success]}
   [{db :db} price]
-  {:db (assoc-in db [:wallet/prepare-transaction :gasPrice] price)})
+  (if (eip1559/sync-enabled?)
+    (let [{:keys [base-fee max-priority-fee]} price
+          max-priority-fee-bn (money/bignumber max-priority-fee)]
+      {:db (-> db
+               (update :wallet/prepare-transaction assoc
+                       :maxFeePerGas (money/to-hex (money/add max-priority-fee-bn base-fee))
+                       :maxPriorityFeePerGas max-priority-fee)
+               (assoc :wallet/latest-base-fee base-fee
+                      :wallet/latest-priority-fee max-priority-fee))})
+    {:db (assoc-in db [:wallet/prepare-transaction :gasPrice] price)}))
 
 (fx/defn set-max-amount
   {:events [:wallet.send/set-max-amount]}
@@ -468,7 +478,9 @@
   {:events [::recipient-address-resolved]}
   [{:keys [db]} address]
   {:db (assoc-in db [:wallet/prepare-transaction :to :address] address)
-   :signing/update-gas-price {:success-event :wallet.send/update-gas-price-success}})
+   :signing/update-gas-price {:success-event :wallet.send/update-gas-price-success
+                              :network-id  (get-in (ethereum/current-network db)
+                                                   [:config :NetworkId])}})
 
 (fx/defn prepare-transaction-from-chat
   {:events [:wallet/prepare-transaction-from-chat]}
@@ -521,7 +533,9 @@
                :symbol     :ETH
                :from-chat? false})
    :dispatch [:open-modal :prepare-send-transaction]
-   :signing/update-gas-price {:success-event :wallet.send/update-gas-price-success}})
+   :signing/update-gas-price {:success-event :wallet.send/update-gas-price-success
+                              :network-id  (get-in (ethereum/current-network db)
+                                                   [:config :NetworkId])}})
 
 (fx/defn cancel-transaction-command
   {:events [:wallet/cancel-transaction-command]}

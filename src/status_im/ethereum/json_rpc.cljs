@@ -23,6 +23,7 @@
    "eth_getTransactionByHash" {}
    "eth_getTransactionReceipt" {}
    "eth_getBlockByNumber" {}
+   "eth_maxPriorityFeePerGas" {}
    "eth_newBlockFilter" {:subscription? true}
    "eth_newFilter" {:subscription? true}
    "eth_getCode" {}

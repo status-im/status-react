@@ -20,7 +20,8 @@
             [status-im.ui.components.colors :as colors]
             [status-im.ui.screens.keycard.views :as keycard.views]
             [status-im.ui.screens.keycard.frozen-card.view :as frozen-card]
-            [status-im.ui.screens.chat.message.pinned-message :as pinned-message]))
+            [status-im.ui.screens.chat.message.pinned-message :as pinned-message]
+            [status-im.ui.screens.signing.sheets :as signing-sheets]))
 
 (defn hide-panel-anim
   [bottom-anim-value alpha-value window-height]
@@ -176,6 +177,9 @@
 
                    (= :pin-limit view)
                    [pinned-message/pin-limit-popover]
+
+                   (= :fees-warning view)
+                   [signing-sheets/fees-warning]
 
                    :else
                    [view])]]]]])))})))

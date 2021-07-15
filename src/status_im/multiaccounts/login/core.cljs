@@ -36,7 +36,8 @@
             [status-im.utils.mobile-sync :as utils.mobile-sync]
             [status-im.async-storage.core :as async-storage]
             [status-im.notifications-center.core :as notifications-center]
-            [status-im.navigation :as navigation]))
+            [status-im.navigation :as navigation]
+            [status-im.signing.eip1559 :as eip1559]))
 
 (re-frame/reg-fx
  ::initialize-communities-enabled
@@ -277,6 +278,10 @@
                                (assoc :networks/current-network current-network
                                       :networks/networks networks
                                       :multiaccount multiaccount))
+                       ::eip1559/check-eip1559-activation
+                       {:network-id  network-id
+                        :on-enabled  #(log/info "eip1550 is activated")
+                        :on-disabled #(log/info "eip1559 is not activated")}
                        ::initialize-wallet
                        (fn [accounts custom-tokens favourites]
                          (re-frame/dispatch [::initialize-wallet

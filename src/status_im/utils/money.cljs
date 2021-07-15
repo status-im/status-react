@@ -33,9 +33,20 @@
       (new BigNumber (normalize (str n)))
       (catch :default _ nil))))
 
+(defn greater-than-or-equals
+  [bn1 bn2]
+  (.greaterThanOrEqualTo bn1 bn2))
+
+(defn greater-than
+  [bn1 bn2]
+  (.greaterThan bn1 bn2))
+
+(defn sub [bn1 bn2]
+  (.sub bn1 bn2))
+
 (defn valid? [^js bn]
   (when bn
-    (.greaterThanOrEqualTo bn 0)))
+    (greater-than-or-equals bn 0)))
 
 (defn from-decimal [n]
   (when n
@@ -62,9 +73,13 @@
   (when-let [^js bn (bignumber n)]
     (.times bn (eth-units unit))))
 
-(defn to-fixed [^js bn]
-  (when bn
-    (.toFixed bn)))
+(defn to-fixed
+  ([^js bn]
+   (when bn
+     (.toFixed bn)))
+  ([^js bn b]
+   (when bn
+     (.toFixed bn b))))
 
 (defn to-number [^js bn]
   (when bn
@@ -154,3 +169,9 @@
       (crypto->fiat (get-in prices [from to :price] ^js (bignumber 0)))
       (with-precision 2)
       str))
+
+(defn add [bn1 n2]
+  (.add bn1 n2))
+
+(defn mul [bn1 bn2]
+  (.mul bn1 bn2))

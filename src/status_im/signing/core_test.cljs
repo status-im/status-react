@@ -29,6 +29,8 @@
                         {:from {:address nil}
                          :gas nil
                          :gasPrice nil
+                         :maxFeePerGas nil
+                         :maxPriorityFeePerGas nil
                          :data nil
                          :to      to
                          :contact {:address to}
@@ -54,6 +56,8 @@
                             {:from {:address nil}
                              :gas nil
                              :gasPrice nil
+                             :maxFeePerGas nil
+                             :maxPriorityFeePerGas nil
                              :data    data
                              :to      contract
                              :contact {:address contract}}))))))))))

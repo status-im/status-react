@@ -39,6 +39,7 @@
             [status-im.chat.models.mentions :as mentions]
             [status-im.notifications.core :as notifications]
             [status-im.utils.currency :as currency]
+            [status-im.signing.eip1559 :as eip1559]
             [clojure.set :as clojure.set]))
 
 ;; TOP LEVEL ===========================================================================================================
@@ -163,7 +164,8 @@
 (reg-root-key-sub :wallet/refreshing-history? :wallet/refreshing-history?)
 (reg-root-key-sub :wallet/fetching-error :wallet/fetching-error)
 (reg-root-key-sub :wallet/non-archival-node :wallet/non-archival-node)
-
+(reg-root-key-sub :wallet/latest-base-fee :wallet/latest-base-fee)
+(reg-root-key-sub :wallet/latest-priority-fee :wallet/latest-priority-fee)
 ;;commands
 (reg-root-key-sub :commands/select-account :commands/select-account)
 
@@ -2494,8 +2496,29 @@
 (re-frame/reg-sub
  :signing/fee
  :<- [:signing/tx]
- (fn [{:keys [gas gasPrice]}]
-   (signing.gas/calculate-max-fee gas gasPrice)))
+ (fn [{:keys [gas gasPrice maxFeePerGas]}]
+   (signing.gas/calculate-max-fee gas (or maxFeePerGas gasPrice))))
+
+(re-frame/reg-sub
+ :signing/currencies
+ :<- [:prices]
+ :<- [:wallet/currency]
+ :<- [:ethereum/native-currency]
+ (fn [[prices {:keys [code]} {:keys [symbol]}]]
+   [(name symbol)
+    code
+    (get-in prices [symbol (keyword code) :price])]))
+
+(re-frame/reg-sub
+ :signing/priority-fee-suggestions-range
+ :<- [:wallet/latest-priority-fee]
+ (fn [latest-fee]
+   [0 (->> latest-fee
+           money/bignumber
+           (money/wei-> :gwei)
+           (money/mul (money/bignumber 2))
+           money/to-fixed
+           js/parseFloat)]))
 
 (re-frame/reg-sub
  :signing/phrase
@@ -2568,12 +2591,13 @@
    [(re-frame/subscribe [:signing/tx])
     (re-frame/subscribe [:balance address])])
  (fn [[{:keys [amount token gas gasPrice approve? gas-error-message]} balance]]
-   (if (and amount token (not approve?))
-     (let [amount-bn (money/formatted->internal (money/bignumber amount) (:symbol token) (:decimals token))
-           amount-error (or (get-amount-error amount (:decimals token))
-                            (get-sufficient-funds-error balance (:symbol token) amount-bn))]
-       (merge amount-error (get-sufficient-gas-error gas-error-message balance (:symbol token) amount-bn gas gasPrice)))
-     (get-sufficient-gas-error gas-error-message balance nil nil gas gasPrice))))
+   (when-not (eip1559/sync-enabled?)
+     (if (and amount token (not approve?))
+       (let [amount-bn (money/formatted->internal (money/bignumber amount) (:symbol token) (:decimals token))
+             amount-error (or (get-amount-error amount (:decimals token))
+                              (get-sufficient-funds-error balance (:symbol token) amount-bn))]
+         (merge amount-error (get-sufficient-gas-error gas-error-message balance (:symbol token) amount-bn gas gasPrice)))
+       (get-sufficient-gas-error gas-error-message balance nil nil gas gasPrice)))))
 
 (re-frame/reg-sub
  :wallet.send/prepare-transaction-with-balance
