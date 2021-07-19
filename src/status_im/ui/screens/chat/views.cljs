@@ -33,7 +33,8 @@
             [status-im.constants :as constants]
             [status-im.utils.platform :as platform]
             [status-im.utils.utils :as utils]
-            [status-im.ui.screens.chat.sheets :as sheets]))
+            [status-im.ui.screens.chat.sheets :as sheets]
+            [status-im.react-native.resources :as resources]))
 
 (defn invitation-requests [chat-id admins]
   (let [current-pk @(re-frame/subscribe [:multiaccount/public-key])
@@ -59,6 +60,31 @@
        {:color colors/blue}]
       [react/i18n-text {:style style/add-contact-text :key :add-to-contacts}]]]))
 
+(defn contact-request [public-key]
+  [react/view {:style {:width "100%"
+                       :justify-content :center
+                       :align-items :center
+                       :border-top-width 1
+                       :border-color colors/gray-transparent-10}}
+   [react/image {:source (resources/get-image :hand-wave)
+                 :style  {:width 112
+                          :height 96.71
+                          :margin-top 17}}]
+   [quo/text {:style {:margin-top 14}
+              :weight :bold
+              :size   :large}
+    (i18n/label :t/say-hi)]
+   [quo/text {:style {:margin-top 2
+                      :margin-bottom 14}}
+    (i18n/label :t/send-contact-request-message)]
+   [react/view {:style {:padding-horizontal 16
+                        :padding-bottom 8}}
+    [quo/button
+     {:style {:width "100%"}
+      :accessibility-label :contact-request--button
+      :on-press #(println "Contact request button pressed" public-key)}
+     (i18n/label :t/contact-request)]]])
+
 (defn chat-intro [{:keys [chat-id
                           chat-name
                           chat-type
@@ -67,7 +93,8 @@
                           contact-name
                           color
                           loading-messages?
-                          no-messages?]}]
+                          no-messages?
+                          contact-added?]}]
   [react/view {:style (style/intro-header-container loading-messages? no-messages?)
                :accessibility-label :history-chat}
    ;; Icon section
@@ -94,12 +121,17 @@
 
       (str
        (i18n/label :t/empty-chat-description-one-to-one)
-       contact-name)])])
+       contact-name)])
+   (when-not (and contact-added? no-messages?)
+     [contact-request chat-id])])
 
-(defn chat-intro-one-to-one [{:keys [chat-id] :as opts}]
+(defn chat-intro-one-to-one [{:keys [chat-id chat-type] :as opts}]
   (let [contact-names @(re-frame/subscribe
                         [:contacts/contact-two-names-by-identity chat-id])]
-    [chat-intro (assoc opts :contact-name (first contact-names))]))
+    [chat-intro (assoc opts
+                       :contact-name (first contact-names)
+                       :contact-added? (and (= chat-type constants/one-to-one-chat-type)
+                                            @(re-frame/subscribe [:contacts/contact-added? chat-id])))]))
 
 (defn chat-intro-header-container
   [{:keys [group-chat invitation-admin
@@ -352,10 +384,12 @@
       :component-did-mount (fn [] (js/setTimeout #(re-frame/dispatch [:set :ignore-close-chat false]) 500))
       :reagent-render
       (fn []
-        (let [{:keys [chat-id show-input? group-chat admins invitation-admin] :as chat}
+        (let [{:keys [chat-id chat-type show-input? group-chat admins invitation-admin] :as chat}
               ;;we want to react only on these fields, do not use full chat map here
               @(re-frame/subscribe [:chats/current-chat-chat-view])
-              max-bottom-space (max @bottom-space @panel-space)]
+              max-bottom-space (max @bottom-space @panel-space)
+              needs-contact-request? (and (= chat-type constants/one-to-one-chat-type)
+                                          @(re-frame/subscribe [:contacts/contact-added? chat-id]))]
           [:<>
            [connectivity/loading-indicator]
            (when chat-id

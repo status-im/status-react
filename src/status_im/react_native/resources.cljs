@@ -43,7 +43,8 @@
    :theme-light        (js/require "../resources/images/ui/theme-light.png")
    :theme-system       (js/require "../resources/images/ui/theme-system.png")
    :notifications      (js/require "../resources/images/ui/notifications.png")
-   :graph              (js/require "../resources/images/ui/graph.png")})
+   :graph              (js/require "../resources/images/ui/graph.png")
+   :hand-wave          (js/require "../resources/images/ui/hand-wave.png")})
 
 (defn get-theme-image [k]
   (get ui (when (colors/dark?) (keyword (str (name k) "-dark"))) (get ui k)))

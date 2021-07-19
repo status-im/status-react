@@ -545,6 +545,47 @@
       [message.audio/message-content message [message-timestamp message false]]]]]
    reaction-picker])
 
+(defn contact-request-status-label [message]
+  [react/view {:style {:flex-direction :row}}
+   [quo/text {:style  {:margin-right 5.27}
+              :weight :medium
+              :color :secondary}
+    "Pending..."]
+   [react/activity-indicator {:animating true
+                              :size      :small
+                              :color     colors/gray}]])
+
+(defmethod ->message constants/content-type-contact-request
+  [{:keys [outgoing] :as message} _]
+  [react/view {:style {:width 168
+                       :min-height 224.71
+                       :border-radius 8
+                       :border-width 1
+                       :border-color colors/gray-lighter
+                       :align-items :center
+                       :margin-vertical 4
+                       :align-self (if outgoing :flex-end :flex-start)
+                       :margin-right (if outgoing 8 0)
+                       :margin-left (if outgoing 0 8)}}
+   [react/image {:source (resources/get-image :hand-wave)
+                 :style  {:width 112
+                          :height 96.71}}]
+   [quo/text {:style {:margin-top 6}
+              :weight :bold
+              :size   :large}
+    "Contact request"]
+   [quo/text {:style {:margin-top 2
+                      :margin-bottom 14}}
+    "👋 hey friend!"]
+   [react/view {:style {:width 136
+                        :height 44
+                        :border-radius 8
+                        :border-width 1
+                        :border-color colors/gray-lighter
+                        :padding-vertical 10
+                        :padding-horizontal 16}}
+    [contact-request-status-label message]]])
+
 (defmethod ->message :default [message]
   [message-content-wrapper message
    [unknown-content-type message]])

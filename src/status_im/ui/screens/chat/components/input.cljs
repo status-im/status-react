@@ -341,7 +341,7 @@
                       :active              active-panel
                       :set-active          set-active-panel}])])
 
-(defn chat-toolbar []
+(defn chat-toolbar [new-contact?]
   (let [actions-ref (quo.react/create-ref)
         send-ref (quo.react/create-ref)
         sticker-ref (quo.react/create-ref)
@@ -360,7 +360,7 @@
            ;;EXTENSIONS and IMAGE buttons
          [actions extensions image show-send actions-ref active-panel set-active-panel]
          [rn/view {:style (styles/input-container)}
-          [send-image]
+          (when-not new-contact? [send-image])
           [rn/view {:style styles/input-row}
            [text-input {:chat-id          chat-id
                         :sending-image    sending-image

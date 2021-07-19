@@ -13,6 +13,7 @@
 (def ^:const content-type-audio 8)
 (def ^:const content-type-community 9)
 (def ^:const content-type-gap 10)
+(def ^:const content-type-contact-request 11) ;; TODO: temp, will be removed
 
 (def ^:const emoji-reaction-love 1)
 (def ^:const emoji-reaction-thumbs-up  2)

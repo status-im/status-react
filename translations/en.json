@@ -1608,5 +1608,8 @@
     },
     "pinned-messages-empty": "Pinned messages will appear here. To pin a message, press and hold it and tap `Pin`",
     "pinned-by": "Pinned by",
-    "pin-limit-reached": "Pin limit reached. Unpin a previous message first."
+    "pin-limit-reached": "Pin limit reached. Unpin a previous message first.",
+    "send-contact-request-message": "To start a chat you need to become contacts",
+    "contact-request": "Contact request",
+    "say-hi": "Say hi"
 }
