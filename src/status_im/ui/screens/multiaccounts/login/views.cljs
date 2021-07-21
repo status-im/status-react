@@ -107,3 +107,10 @@
          {:disabled (or (not sign-in-enabled?) processing)
           :on-press #(login-multiaccount @password-text-input)}
          (i18n/label :t/sign-in)]]}]]))
+
+(comment
+  ;; fill password and login
+  (do
+    (re-frame/dispatch [:set-in [:multiaccounts/login :password]
+                        (security/mask-data "111111")])
+    (re-frame/dispatch [:multiaccounts.login.ui/password-input-submitted])))

@@ -1,6 +1,7 @@
 (ns status-im.ui.screens.wallet.accounts.views
   (:require [quo.animated :as reanimated]
             [quo.core :as quo]
+            [quo.react-native :as rn]
             [re-frame.core :as re-frame]
             [reagent.core :as reagent]
             [status-im.i18n.i18n :as i18n]
@@ -14,13 +15,14 @@
             [status-im.ui.screens.wallet.accounts.styles :as styles]
             [status-im.qr-scanner.core :as qr-scanner]
             [status-im.wallet.utils :as wallet.utils]
+            [status-im.utils.utils :as utils.utils]
             [status-im.keycard.login :as keycard.login])
-  (:require-macros [status-im.utils.views :as views]))
+  (:require-macros [status-im.utils.views :refer [defview letsubs]]))
 
-(views/defview account-card [{:keys [name color address type] :as account} keycard? card-width]
-  (views/letsubs [currency        [:wallet/currency]
-                  portfolio-value [:account-portfolio-value address]
-                  prices-loading? [:prices-loading?]]
+(defview account-card [{:keys [name color address type] :as account} keycard? card-width]
+  (letsubs [currency        [:wallet/currency]
+            portfolio-value [:account-portfolio-value address]
+            prices-loading? [:prices-loading?]]
     [react/touchable-highlight
      {:on-press            #(re-frame/dispatch [:navigate-to :wallet-account account])
       :accessibility-label (str "accountcard" name)}
@@ -78,16 +80,16 @@
                            [list/item-image icon]
                            [chat-icon/custom-icon-view-list (:name token) color])}])
 
-(views/defview assets []
-  (views/letsubs [{:keys [tokens]} [:wallet/all-visible-assets-with-values]
-                  currency [:wallet/currency]]
+(defview assets []
+  (letsubs [{:keys [tokens]} [:wallet/all-visible-assets-with-values]
+            currency [:wallet/currency]]
     [:<>
      (for [item tokens]
        ^{:key (:name item)}
        [render-asset item nil nil (:code currency)])]))
 
-(views/defview send-button []
-  (views/letsubs [account [:multiaccount/default-account]]
+(defview send-button []
+  (letsubs [account [:multiaccount/default-account]]
     [react/view styles/send-button-container
      [quo/button
       {:accessibility-label :send-transaction-button
@@ -106,11 +108,11 @@
      ^{:key i}
      [dot {:selected (= selected i)}])])
 
-(views/defview accounts []
-  (views/letsubs [accounts [:multiaccount/accounts]
-                  keycard? [:keycard-multiaccount?]
-                  window-width [:dimensions/window-width]
-                  index (reagent/atom 0)]
+(defview accounts []
+  (letsubs [accounts     [:multiaccount/accounts]
+            keycard?     [:keycard-multiaccount?]
+            window-width [:dimensions/window-width]
+            index (reagent/atom 0)]
     (let [card-width (quot window-width 1.1)
           page-width (styles/page-width card-width)]
       [react/view {:style {:align-items     :center
@@ -137,12 +139,12 @@
            [dots-selector {:selected @index
                            :n        n}]))])))
 
-(views/defview total-value [{:keys [animation minimized]}]
-  (views/letsubs [currency           [:wallet/currency]
-                  portfolio-value    [:portfolio-value]
-                  empty-balances?    [:empty-balances?]
-                  frozen-card?       [:keycard/frozen-card?]
-                  {:keys [mnemonic]} [:multiaccount]]
+(defview total-value [{:keys [animation minimized]}]
+  (letsubs [currency           [:wallet/currency]
+            portfolio-value    [:portfolio-value]
+            empty-balances?    [:empty-balances?]
+            frozen-card?       [:keycard/frozen-card?]
+            {:keys [mnemonic]} [:multiaccount]]
     [reanimated/view {:style (styles/container {:minimized minimized})}
      (when (or
             (and frozen-card? minimized)
@@ -190,12 +192,38 @@
         [quo/text {:color :secondary}
          (i18n/label :t/wallet-total-value)]])]))
 
-(defn accounts-overview []
-  (let [mnemonic @(re-frame/subscribe [:mnemonic])]
+;; Note(rasom): sometimes `refreshing` might get stuck on iOS if action happened
+;; too fast. By updating this atom in 1s we ensure that `refreshing?` property
+;; is updated properly in this case.
+(defonce updates-counter (reagent/atom 0))
+
+(defn schedule-counter-reset []
+  (utils.utils/set-timeout
+   (fn []
+     (swap! updates-counter inc)
+     (when @(re-frame/subscribe [:wallet/refreshing-history?])
+       (schedule-counter-reset)))
+   1000))
+
+(defn refresh-action []
+  (schedule-counter-reset)
+  (re-frame/dispatch [:wallet.ui/pull-to-refresh-history]))
+
+(defn refresh-control [refreshing?]
+  (reagent/as-element
+   [rn/refresh-control
+    {:refreshing (boolean refreshing?)
+     :onRefresh  refresh-action}]))
+
+(defview accounts-overview []
+  (letsubs [mnemonic [:mnemonic]
+            refreshing-history? [:wallet/refreshing-history?]]
     [react/view {:flex 1}
      [quo/animated-header
       {:extended-header   total-value
        :use-insets        true
+       :refresh-control   (refresh-control
+                           (and @updates-counter refreshing-history?))
        :right-accessories [{:on-press            #(re-frame/dispatch
                                                    [::qr-scanner/scan-code
                                                     {:handler :wallet.send/qr-scanner-result}])

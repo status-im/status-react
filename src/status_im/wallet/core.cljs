@@ -723,6 +723,7 @@
    cofx
    {:force-restart? force-restart?}))
 
+;; cooldown time in milliseconds
 (def pull-to-refresh-cooldown-period (* 1 60 1000))
 
 (fx/defn restart-on-pull
