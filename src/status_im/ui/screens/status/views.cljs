@@ -48,7 +48,7 @@
                                          :overflow      :hidden
                                          :border-radius 16
                                          :margin-top    8}
-                   :accessibility-label :message-image}
+                   :accessibility-label :image-message}
        [react/image {:style       {:width  (first @dimensions)
                                    :height image-max-dimension}
                      :cache       :force-cache

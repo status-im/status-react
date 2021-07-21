@@ -343,7 +343,7 @@
                                      :on-long-press on-long-press
                                      :disabled      in-popover?}
           [react/view {:style               (style/image-message style-opts)
-                       :accessibility-label :message-image}
+                       :accessibility-label :image-message}
            [react/image {:style       (dissoc style-opts :outgoing)
                          :resize-mode :cover
                          :source      {:uri uri}}

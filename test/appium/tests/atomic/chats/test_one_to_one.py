@@ -666,6 +666,86 @@ class TestMessagesOneToOneChatMultiple(MultipleDeviceTestCase):
             self.errors.append('New messages counter is shown on chat element for already seen message')
         self.errors.verify_no_errors()
 
+
+
+
+
+
+
+
+
+
+
+
+###############################################################
+    ########################################################
+
+
+
+    @marks.testrail_id(53622121212)
+    @marks.medium
+    def test_unread_messages_countewwwwwwwwr_1_1_chat(self):
+        self.create_drivers(2)
+        device_1, device_2 = SignInView(self.drivers[0]), SignInView(self.drivers[1])
+        device_1_home, device_2_home = device_1.create_user(enable_notifications=True), device_2.create_user()
+        device_1_public_key, default_username_1 = device_1_home.get_public_key_and_username(return_username=True)
+        device_2_public_key, default_username_2 = device_2_home.get_public_key_and_username(return_username=True)
+        device_1_home.home_button.click()
+        profile_2 = device_2_home.get_profile_view()
+        profile_2.switch_network()
+        device_2_chat = device_2_home.add_contact(device_1_public_key)
+
+        device_2_home.just_fyi('install free sticker pack and use it in 1-1 chat')
+        device_2_chat.show_stickers_button.click()
+        device_2_chat.get_stickers.click()
+        device_2_chat.install_sticker_pack_by_name('Status Cat')
+        device_2_chat.back_button.click()
+        time.sleep(2)
+        device_2_chat.swipe_left()
+        device_1_chat = device_1_home.add_contact(device_2_public_key)
+
+
+        #def send_sticker():
+        #    device_2_chat.show_stickers_button.click()
+        #    device_2_chat.swipe_right()
+        #    device_2_chat.sticker_icon.click()
+
+
+        ###### Separate method aka Return apps to default state ######
+        device_1_chat.put_app_to_background()
+        device_1.open_notification_bar()
+        device_2_chat.get_back_to_home_view(2)
+        device_2_home.get_chat_from_home_view(default_username_1).click()
+        ###############################################################
+
+        device_2_chat.show_stickers_button.click()
+        #device_2_chat.swipe_right()
+        device_2_chat.sticker_icon.click()
+        if not device_1.element_by_text_part("Sticker").is_element_displayed():
+            self.errors.append("Sticker not appeared in Push Notification")
+            device_1.status_app_icon.click()
+        else:
+            device_1.element_by_text_part("Sticker").click()
+        message = device_2_chat.chat_element_by_text("sticker")
+        device_1_chat.set_reaction("sticker")
+        if message.emojis_below_message(own=False) != 1:
+            self.errors.append("Counter of reaction is not set on Sticker for message receiver!")
+        device_1_chat.set_reaction("sticker")
+        if message.emojis_below_message(own=False) == 1:
+            self.errors.append("Counter of reaction is not re-set on Sticker for message receiver!")
+
+
+        self.errors.verify_no_errors()
+
+    ###################################
+    ###################################
+    ###################################
+
+
+
+
+
+
     @marks.testrail_id(5425)
     @marks.medium
     # TODO: should be completed with quoting after fix 9480

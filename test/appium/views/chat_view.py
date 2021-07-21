@@ -117,7 +117,10 @@ class ProfileBlockContactButton(Button):
 class ChatElementByText(Text):
     def __init__(self, driver, text):
         self.message_text = text
-        self.message_locator = "//*[starts-with(@text,'%s')]" % text
+        if text in ["image", "sticker", "audio"]:
+            self.message_locator = "//android.view.ViewGroup[@content-desc='%s-message']" % text
+        else:
+            self.message_locator = "//*[starts-with(@text,'%s')]" % text
         super().__init__(driver, prefix=self.message_locator,
                          xpath="/ancestor::android.view.ViewGroup[@content-desc='chat-item']")
 
@@ -336,8 +339,6 @@ class CommunityView(HomeView):
         else:
             Button(self.driver, xpath="//*[starts-with(@text,'%s')]%s" % (username, decline_suffix)).click()
         self.close_button.click()
-
-
 
 
 class PreviewMessage(ChatElementByText):
@@ -572,9 +573,10 @@ class ChatView(BaseView):
         self.show_images_button = Button(self.driver, accessibility_id="show-photo-icon")
         self.take_photo_button = Button(self.driver, accessibility_id="take-picture")
         self.image_from_gallery_button = Button(self.driver, accessibility_id="open-gallery")
+        self.image_message_in_chat = Button(self.driver, accessibility_id="image-message")
         self.first_image_from_gallery = Button(self.driver,
                                                xpath="//*[@content-desc='open-gallery']/following-sibling::android.view.ViewGroup[1]")
-        self.image_chat_item = Button(self.driver, accessibility_id="message-image")
+        self.image_message_in_chat = Button(self.driver, accessibility_id="message-image")
         self.save_image_button = Button(self.driver, translation_id="save")
         self.recent_image_in_gallery = Button(self.driver,
                                               xpath="//*[contains(@resource-id,'thumbnail')]")
@@ -583,6 +585,7 @@ class ChatView(BaseView):
                                          xpath="//*[@content-desc='icon']/android.widget.ImageView")
 
         #Audio
+        self.audio_message_in_chat = Button(self.driver, accessibility_id="audio-message")
         self.audio_message_button = Button(self.driver, accessibility_id="show-audio-message-icon")
         self.record_audio_button = Button(self.driver, accessibility_id="start-stop-audio-recording-button")
         self.cancel_audio_message_button = Button(self.driver, accessibility_id="cancel-message-button")
@@ -788,7 +791,14 @@ class ChatView(BaseView):
     def set_reaction(self, message: str,  emoji: str = 'thumbs-up'):
         self.driver.info("**Setting '%s' reaction**" % emoji)
         key = emojis[emoji]
-        self.element_by_text_part(message).long_press_element()
+        #if message == "Sticker":
+        #    self.sticker_message.long_press_element()
+        #elif message == "Audio":
+        #    self.audio_message_in_chat.long_press_element()
+        #elif message == "Image":
+        #    self.image_message_in_chat.long_press_element()
+        #else:
+        self.chat_element_by_text(message).long_press_element()
         element = Button(self.driver, accessibility_id ='pick-emoji-%s' % key)
         element.click()
         element.wait_for_invisibility_of_element()
