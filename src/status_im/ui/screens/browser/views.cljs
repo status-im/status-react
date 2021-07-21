@@ -189,12 +189,11 @@
         :bounces                                    false
         :local-storage-enabled                      true
         :render-error                               web-view-error
-        :on-navigation-state-change                 #(do
+        :on-load-start                              #(do
                                                        (re-frame/dispatch [:set-in [:ens/registration :state] :searching])
                                                        (debounce/debounce-and-dispatch
-                                                        [:browser/navigation-state-changed % error?]
+                                                        [:browser/navigation-state-changed (.-nativeEvent %) error?]
                                                         500))
-
         :on-permission-request                      #(if resources-permission?
                                                        (request-resources-access-for-page (-> ^js % .-nativeEvent .-resources) url @webview-ref/webview-ref)
                                                        (block-resources-access-and-notify-user url))
@@ -229,7 +228,7 @@
           can-go-forward? (browser/can-go-forward? browser)
           url-original    (browser/get-current-url browser)]
       [react/view {:style styles/browser}
-       [toolbar-content url url-original secure? url-editing? unsafe?]
+       [toolbar-content url url-original (and (not error?) secure?) url-editing? unsafe?]
        [components/separator-dark]
        [react/view
         (when loading?
