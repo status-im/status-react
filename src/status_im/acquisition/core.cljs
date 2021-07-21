@@ -13,7 +13,8 @@
             [status-im.acquisition.persistance :as persistence]
             [status-im.acquisition.gateway :as gateway]
             [status-im.utils.config :as config]
-            [status-im.acquisition.install-referrer :as install-referrer]))
+            [status-im.acquisition.install-referrer :as install-referrer]
+            [status-im.utils.universal-links.core :as links]))
 
 (def not-found-code "notfound.click_id")
 (def advertiser-type "advertiser")
@@ -84,20 +85,22 @@
               {:db (-> db
                        (assoc-in [:acquisition :referrer] referrer)
                        (assoc-in [:acquisition :flow-state] flow-state))}
-              (cond
-                (nil? flow-state)
-                (gateway/get-referrer
-                 referrer
-                 (fn [resp] [::referrer-registered referrer resp])
-                 (fn [{:keys [code]}] (= code not-found-code))
-                 (fn [resp]
-                   (re-frame/dispatch [::outdated-referrer resp])))
+              #(if (links/universal-link? referrer)
+                 {:dispatch [:universal-links/handle-url referrer]}
+                 (cond
+                   (nil? flow-state)
+                   (gateway/get-referrer
+                    referrer
+                    (fn [resp] [::referrer-registered referrer resp])
+                    (fn [{:keys [code]}] (= code not-found-code))
+                    (fn [resp]
+                      (re-frame/dispatch [::outdated-referrer resp])))
 
-                (= flow-state (:accepted persistence/referrer-state))
-                (fn [_]
-                  {::persistence/check-tx-state (fn [tx]
-                                                  (when-not (nil? tx)
-                                                    (re-frame/dispatch [::claim/check-transaction-receipt tx])))})))))
+                   (= flow-state (:accepted persistence/referrer-state))
+                   (fn [_]
+                     {::persistence/check-tx-state (fn [tx]
+                                                     (when-not (nil? tx)
+                                                       (re-frame/dispatch [::claim/check-transaction-receipt tx])))}))))))
 
 (re-frame/reg-fx
  ::resolve-contract
