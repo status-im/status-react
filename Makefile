@@ -332,3 +332,8 @@ repl-clojure: ##@repl Start Clojure repl for mobile App
 	yarn shadow-cljs cljs-repl mobile
 
 repl-nix: nix-repl ##@repl Start an interactive Nix REPL
+
+fdroid-pr: TARGET := android
+fdroid-pr: GL_USERNAME ?= "${USERNAME}"
+fdroid-pr: ##@fdroid Create F-Droid release PR
+	scripts/fdroid-pr.sh
